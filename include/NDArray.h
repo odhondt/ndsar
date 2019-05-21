@@ -1,5 +1,3 @@
-#include<fstream>
-
 #define arr_for1(bound,p) for (int p = 0; p<(int)(bound); ++p)
 #define arr_forI(img,i) arr_for1((img)._dimi,i)
 #define arr_forJ(img,j) arr_for1((img)._dimj,j)
@@ -119,62 +117,5 @@ struct NDArray
     const T* data() const {
       return _data;
     }
-
-
-  // this is a hack to save the image to a temporary file
-  // and open it with gmic.
-  void display() {
-    char *tmpname = strdup("/tmp/tmpfileXXXXXX");
-    mkstemp(tmpname);
-
-    std::ofstream fout (tmpname, std::ofstream::binary);
-
-    if (!fout.is_open())
-    {
-      std::cout << "Can't open output file"  << tmpname << std::endl;
-      exit(1);
-    }
-    fout << "1 float little_endian\n";
-    fout << _dimj << " " << _dimi << " " <<_diml << " " << _dimk << "\n";
-
-
-    arr_forIJKL((*this), i, j, k, l) {
-      float val = (float) (*this)(i, j, k, l);
-      fout.write((char *)&val,sizeof(float));
-    }
-
-    fout.close();
-
-    std::string cmd = "gmic " + std::string(tmpname);
-    system(cmd.c_str());
-  }
-  
-  // same but displays a graph
-  void plot() {
-    char *tmpname = strdup("/tmp/tmpfileXXXXXX");
-    mkstemp(tmpname);
-
-    std::ofstream fout (tmpname, std::ofstream::binary);
-
-    if (!fout.is_open())
-    {
-      std::cout << "Can't open output file"  << tmpname << std::endl;
-      exit(1);
-    }
-    fout << "1 float little_endian\n";
-    fout << _dimj << " " << _dimi << " " <<_diml << " " << _dimk << "\n";
-
-
-    arr_forIJKL((*this), i, j, k, l) {
-      float val = (float) (*this)(i, j, k, l);
-      fout.write((char *)&val,sizeof(float));
-    }
-
-    fout.close();
-
-    std::string cmd = "gmic " + std::string(tmpname) + " -display_graph";
-    system(cmd.c_str());
-  }
-
 };
 

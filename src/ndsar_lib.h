@@ -329,7 +329,6 @@ void ndsar_nlm(const NDArray<clx> &img, NDArray<clx> &imgout,
     weights(i, j) = SumWeight;
     EigMap(&imgout(i, j), d, d) = Ts;
   }
-  // weights.display();
 
 }
 
