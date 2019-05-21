@@ -1,11 +1,11 @@
-#include<algorithm>
-#include<iostream>
+#include <algorithm>
+#include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <string>
 #include <vector>
-#include<queue>
+#include <queue>
 #include "NDArray.h"
 #include "Eigen/Core"
 #include "Eigen/Eigenvalues"
@@ -54,92 +54,6 @@ class DistanceLogDiag : public DistanceBase<N> {
     }
 };
 
-
-template <int N>
-class DistancePhasor : public DistanceBase<N> {
-  public:
-    float compute(const Eigen::Matrix<clx, N, N, RowMajor> &A, const Eigen::Matrix<clx, N, N, RowMajor> &B)
-    {  
-      typedef Eigen::Matrix<float, N, N, RowMajor> EigMatF;
-      EigMatF MagA = A.array().abs();
-      MagA = (MagA.array()!=0.0).select(MagA,1);
-      EigMatF MagB = B.array().abs();
-      MagB = (MagB.array()!=0.0).select(MagB,1);
-//      std::cout<<0.25*((A.array()/MagA.array())
-//        -(B.array()/MagB.array())).array().abs2()<<std::endl;
-//      std::cout<<std::endl;
-
-
-//      return ((A.array()/MagA.array())*(B.array()/MagB.array()).conjugate()).matrix().squaredNorm();
-      return 0.25*(A.array()/MagA.array()-B.array()/MagB.array()).matrix().squaredNorm();
-    }
-};
-
-template <int N>
-class DistancePhasor_experimental : public DistanceBase<N> {
-  public:
-    float compute(const Eigen::Matrix<clx, N, N, RowMajor> &A, const Eigen::Matrix<clx, N, N, RowMajor> &B)
-    {  
-      typedef Eigen::Matrix<clx, N, N, RowMajor> EigMat;
-      EigMat TA, TB;
-      TA = A.template triangularView<Eigen::StrictlyUpper>();
-      TB = B.template triangularView<Eigen::StrictlyUpper>();
-      typedef Eigen::Matrix<float, N, N, RowMajor> EigMatF;
-      EigMatF MagA = TA.array().abs();
-      EigMatF MagB = TB.array().abs();
-//      std::cout<<TA<<std::endl;
-//      std::cout<<MagA<<std::endl;
-//      std::cout<<0.25*((TA.array()/MagA.array())
-//        -(TB.array()/MagB.array())).array().abs2()<<std::endl;
-//      std::cout<<std::endl;
-
-
-//      return ((A.array()/MagA.array())*(B.array()/MagB.array()).conjugate()).matrix().squaredNorm();
-      return 0.25*(TA.array()/MagA.array()-TB.array()/MagB.array()).matrix().squaredNorm();
-    }
-};
-
-
-
-template <int N>
-class DistanceAngle : public DistanceBase<N> {
-  public:
-    float compute(const Eigen::Matrix<clx, N, N, RowMajor> &A, const Eigen::Matrix<clx, N, N, RowMajor> &B)
-    {  
-      typedef Eigen::Matrix<clx, N, N, RowMajor> EigMat;
-      //      std::cout<<0.25*((A.array()/MagA.array())
-//        -(B.array()/MagB.array())).array().abs2()<<std::endl;
-      EigMat TA, TB;
-      TA = A.template triangularView<Eigen::StrictlyUpper>();
-      TB = B.template triangularView<Eigen::StrictlyUpper>();
-//      std::cout<<TA<<std::endl;
-//      std::cout<<TA.array().size()<<std::endl;
-//      std::cout<<arg(A.array()*B.array().conjugate())<<std::endl;
-//      std::cout<<std::endl;
-
-
-//      return (A.array()*B.array().conjugate()).matrix().squaredNorm();
-      return arg(TA.array()*TB.array().conjugate()).array().abs().sum();
-    }
-};
-
-
-
-template <int N>
-class DistanceGLRT : public DistanceBase<N> {
-  // This formula comes from NLSAR
-  // L * logf(detC12 * detC12 / detC1 / detC2) - 2 * L * D * LOG2;
-  // Here we do not know the number of looks, thus we eliminate it
-  public:
-    float compute(const Eigen::Matrix<clx, N, N, RowMajor> &A, const Eigen::Matrix<clx, N, N, RowMajor> &B)
-    {
-      const float Det2 = std::real((A+B).determinant());
-      const float D = std::max(logf( Det2*Det2
-          / std::real(A.determinant()*B.determinant()))
-          - 2*A.rows()*LOG2,0.0);
-      return D*D;
-    }
-};
 
 // Bilateral filter with different similarities
 template<int N>
@@ -206,18 +120,6 @@ void ndsar_blf(const NDArray<clx> &img, NDArray<clx> &imgout,
     }
   }
 
-  if(METHOD == 4) {// Affine invariant -> pre-compute inv sqrt
-  std::cout<<"Pre-computing inv sqrt\n\n";
-    SelfAdjointEigenSolver<Matrix<clx, N, N, RowMajor> > es0(d);
-    ConstEigMap Tp(NULL, d, d);
-    arr_forIJ(img, i, j) {
-      new (&Tp) ConstEigMap(&img(i, j),d,d);
-      LLT<EigMat> CholB(Tp);
-      EigMat Ts(CholB.matrixL());
-
-      EigMap(&img0(i, j), d, d) = Ts;
-    }
-  }
   EigMat Ts(d, d); // filtered pixel
   ConstEigMap T0(NULL, d, d), Ti(NULL, d, d), T0b(NULL, d, d), Tib(NULL, d, d); // pointers to pixel 0 and i
 
@@ -235,15 +137,11 @@ void ndsar_blf(const NDArray<clx> &img, NDArray<clx> &imgout,
     case 3:
     dist_cur = new DistanceLogDiag<N>;
     break;
-    case 4:
-    dist_cur = new DistanceGLRT<N>;
-      break;
     default:
       dist_cur = new DistanceAI<N>;
       break;
   }
 
-  std::cout<<"Filtering\n\n";
   #pragma omp parallel for firstprivate(Ts, T0, Ti, T0b, Tib)
   arr_forIJ(img,i,j) {
     float SumWeight = 0;
@@ -333,13 +231,13 @@ void ndsar_nlm(const NDArray<clx> &img, NDArray<clx> &imgout,
 
   NDArray<clx> img0(dimaz, dimrg, dimmat, dimmat, 0.0);
 
-  if(METHOD == 1 || METHOD == 3 || METHOD == 4) { // Affine-Invariant & Log Diagonal
+  if(METHOD == 1 || METHOD == 3) { // Affine-Invariant & Log Diagonal
     arr_forIJKL(img, i, j, k, l) {
       img0(i, j, k, l) = img(i, j, k, l);
     }
   }
 
-  if(METHOD == 2 || METHOD == 5) {// Log-euclidean -> pre-compute logs
+  if(METHOD == 2) {// Log-euclidean -> pre-compute logs
     SelfAdjointEigenSolver<Matrix<clx, N, N, RowMajor> > es0(d);
     ConstEigMap Tp(NULL, d, d);
     EigMat V(d, d), Ts(d, d);
@@ -371,16 +269,11 @@ void ndsar_nlm(const NDArray<clx> &img, NDArray<clx> &imgout,
     case 3:
       dist_cur = new DistanceLogDiag<N>;
       break;
-    case 4:
-      dist_cur = new DistanceGLRT<N>;
-      break;
-    // testing performance of norm operator
     default:
       dist_cur = new DistanceAI<N>;
       break;
   }
 
-  std::cout<<"Filtering NLM\n\n";
   #pragma omp parallel for firstprivate(Ts, T0, Ti, T0w, Tiw)
   arr_forIJ(img, i, j) {
     float SumWeight = 0;
@@ -450,10 +343,6 @@ void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
   float gr2 = gammaR * gammaR;
   float gs2 = gammaS * gammaS;
 
-  std::cout<<"gr: "<<gammaR<<std::endl;
-  std::cout<<"gs: "<<gammaS<<std::endl;
-  std::cout<<"Psiz: "<<Psiz<<std::endl;
-
    // Calculating the window size for the gaussian weights
   int H = ceil(std::sqrt(3.0)*gammaS);
   int PH = Psiz/2;
@@ -483,9 +372,6 @@ void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
   NDArray<float> img0(img.dimI(), img.dimJ(), img.dimK(), img.dimL(), 0.0);
   arr_forIJ(img0, i, j)
     img0(i, j) = logf(real(img(i, j)));
-
-
-  std::cout<<"Filtering NLM\n\n";
 
   clx res;
   #pragma omp parallel for firstprivate(res)
@@ -583,7 +469,6 @@ void ndsar_blf<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
 
   NDArray<float> weights(dimaz, dimrg, 1, 1, 0.0);
 
-  std::cout<<"Filtering\n\n";
   clx res;
   //#pragma omp parallel for firstprivate(res)
   arr_forIJ(img, i, j) {
@@ -627,38 +512,7 @@ void ndsar_blf<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
 
 }
 
-template <int N>
-class Pixel {
-  public:
-    Eigen::Matrix<clx, N, N, Eigen::RowMajor> Tp; // pixel data
-    float D; // distance to central pixel
-};
-
-template <int N>
-bool OrderPix(const Pixel<N>& A, const Pixel<N>& B) {
-  return A.D < B.D;
-}
-
-template <int N>
-bool OrderPixInv(const Pixel<N>& A, const Pixel<N>& B) {
-  return A.D > B.D;
-}
-
 // ---------------- INTERFACES ---------------------
-
-void polsar_blf_cpp(clx* data_view, clx* data_view2,
-     int* shape, float gs, float gr, bool TRICK, bool FLAT, int METHOD = 1)
-{
-  int nl = shape[0];
-  int nc = shape[1];
-  int nlm = shape[2];
-  int ncm = shape[3];
-  NDArray<clx> img(data_view, nl, nc, nlm, ncm);
-  NDArray<clx> imgout(data_view2, nl, nc, nlm, ncm);
-
-  ndsar_blf<3>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-}
-
 void ndsar_blf_cpp(clx* data_view, clx* data_view2,
     int* shape, float gs, float gr, bool TRICK, bool FLAT, int METHOD = 1)
 {
@@ -673,34 +527,7 @@ void ndsar_blf_cpp(clx* data_view, clx* data_view2,
     case 1:
       ndsar_blf<1>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
       break;
-      //    case 2:
-      //      ndsar_blf<2>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 3:
-      //      ndsar_blf<3>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 4:
-      //      ndsar_blf<4>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 5:
-      //      ndsar_blf<5>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 6:
-      //      ndsar_blf<6>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 7:
-      //      ndsar_blf<7>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 8:
-      //      ndsar_blf<8>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 9:
-      //      ndsar_blf<9>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 10:
-      //      ndsar_blf<10>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-    default:
+   default:
         ndsar_blf<Eigen::Dynamic>(img, imgout, gs, gr, TRICK, FLAT, METHOD, nlm);
       break;
   }
@@ -720,34 +547,7 @@ void ndsar_nlm_cpp(clx* data_view, clx* data_view2,
     case 1:
       ndsar_nlm<1>(img, imgout, gs, gr, Psiz, TRICK, FLAT, METHOD);
       break;
-      //    case 2:
-      //      ndsar_blf<2>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 3:
-      //      ndsar_blf<3>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 4:
-      //      ndsar_blf<4>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 5:
-      //      ndsar_blf<5>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 6:
-      //      ndsar_blf<6>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 7:
-      //      ndsar_blf<7>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 8:
-      //      ndsar_blf<8>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 9:
-      //      ndsar_blf<9>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-      //    case 10:
-      //      ndsar_blf<10>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
-      //      break;
-    default:
+   default:
         ndsar_nlm<Eigen::Dynamic>(img, imgout, gs, gr, Psiz, TRICK, FLAT, METHOD, nlm);
       break;
   }

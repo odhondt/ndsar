@@ -1,37 +1,8 @@
 cdef extern from "src/ndsar_lib.h":
-  cdef void polsar_blf_cpp(float complex* arr, float complex* arr2, int* c_shp, float gs, float gr, bint trick, bint flat, int method)
   cdef void ndsar_blf_cpp(float complex* arr, float complex* arr2, int* c_shp, float gs, float gr, bint trick, bint flat, int method)
   cdef void ndsar_nlm_cpp(float complex* arr, float complex* arr2, int* c_shp, float gs, float gr, int Psiz, bint trick, bint flat, int method)
 
 import numpy as np
-
-def polsarblf(float complex[:,:,:,::1] varr, float gs=2.8, float gr=1.4,
-             method = 'ai', bint trick=True, bint flat=False):
-  """polsarblf(float complex[:,:,:,::1] arr, float gs=2.8, float gr=1.4,
-             method = 'ai', bint trick=True, bint flat=False)
-  """
-
-  cdef int[::1] c_shp = np.asarray([varr.shape[0], varr.shape[1], varr.shape[2],
-                                    varr.shape[3]], dtype=np.int32)
-
-  arr2 = np.zeros_like(varr)
-  cdef float complex[:,:,:,::1] varr2 = arr2
-
-  if method == 'ai':
-    meth_int = 1
-  elif method == 'le':
-    meth_int = 2
-  elif method == 'ld':
-    meth_int = 3
-  elif method == 'fai':
-    meth_int = 4
-  else:
-    raise ValueError("Method does not exist")
-  polsar_blf_cpp(&varr[0,0,0,0], &varr2[0,0,0,0], &c_shp[0], gs, gr, trick, flat, meth_int)
-
-
-
-  return arr2
 
 def ndsarblf(float complex[:,:,:,::1] varr, float gs=2.8, float gr=1.4,
              method = 'ai', bint trick=True, bint flat=False):
