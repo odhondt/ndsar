@@ -376,6 +376,7 @@ void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
   #pragma omp parallel for firstprivate(res)
   arr_forIJ(img, i, j) {
     float SumWeight = 0;
+    res = 0.0;
 
     const int smin = std::max(i-H, 0),
           smax = std::min(i+H, dimaz-1),
@@ -383,8 +384,6 @@ void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
           tmax = std::min(j+H, dimrg-1);
 
     float WMax = 0.0;
-    res = 0.0;
-    float sumcnt = 0;
     for(int s = smin; s <= smax; ++s)
       for(int t = tmin; t <= tmax; ++t) {
         if(s != i || t != j) {
@@ -394,10 +393,9 @@ void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
                     vmax = (j + PH > dimrg - 1 || t + PH > dimrg - 1)?std::min(dimrg-1-j, dimrg-1-t):PH;
           float W = 0.0, D = 0.0; // init weight and distance
           const int cnt = (umax-umin+1)*(vmax-vmin+1);
-          sumcnt += cnt;
           for(int u = umin; u <= umax; ++u) // loop on patch
             for(int v = vmin; v <= vmax; ++v) {
-              float diff =(img0(i+u,j+v) - img0(s+u,t+v));
+              const float diff = img0(i+u,j+v) - img0(s+u,t+v);
               D += diff*diff;
               if(W > WMax){
                WMax = W;
@@ -469,9 +467,10 @@ void ndsar_blf<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
   NDArray<float> weights(dimaz, dimrg, 1, 1, 0.0);
 
   clx res;
-  //#pragma omp parallel for firstprivate(res)
+  #pragma omp parallel for firstprivate(res)
   arr_forIJ(img, i, j) {
     float SumWeight = 0;
+    res = 0.0;
 
     const int smin = std::max(i-H, 0),
           smax = std::min(i+H, dimaz-1),
@@ -479,7 +478,6 @@ void ndsar_blf<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
           tmax = std::min(j+H, dimrg-1);
 
     float WMax = 0.0;
-    res = 0.0;
     for(int s = smin; s <= smax; ++s)
       for(int t = tmin; t <= tmax; ++t) {
         if(s != i || t != j) {
