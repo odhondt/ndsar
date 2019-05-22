@@ -35,7 +35,7 @@ This way you can easily use any data importer in python (PyRAT, GDAL...) and int
 ## Install
 
 - Clone the repository in a folder contained in you python path.
-- Build the functions with `./cl_build.sh`
+- Build the module with `./cl_build.sh`
 
 ### Requirements
 
