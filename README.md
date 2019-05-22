@@ -38,4 +38,14 @@ In your favorite python environment, import the filters with
 ```python
 from ndsar import *
 ```
- Then, `ndsarnlm?` will display help on how to use the function.
+
+Then, type the name of the function followed by `?` to get help on how to use the function. Ex: `ndsarnlm?`. 
+
+There are four available filters:
+
+- `ndsarnlm`: nonlocal filter for covariance matrices (multi-dimensional SAR images)
+- `ndsarblf`: bilateral filter for covariance matrices (multi-dimensional SAR images)
+- `sarnlm`: nonlocal filter for intensity images  (single-channel SAR images)
+- `sarblf`: bilateral filter for intensiity images  (single-channel SAR images)
+
+
