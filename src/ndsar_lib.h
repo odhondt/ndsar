@@ -1,3 +1,4 @@
+
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
@@ -6,11 +7,10 @@
 #include <string>
 #include <vector>
 #include <queue>
+
 #include "NDArray.h"
 #include "Eigen/Core"
 #include "Eigen/Eigenvalues"
-
-#define LOG2 0.6931471805599452862267639829951804131269
 
 typedef std::complex<float> clx;
 
@@ -332,7 +332,7 @@ void ndsar_nlm(const NDArray<clx> &img, NDArray<clx> &imgout,
 
 }
 
-// NLM filter with different similarities
+// NLM for single channel (all distances are equivalent)
 template<>
 void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
     float gammaS, float gammaR, int Psiz,
@@ -430,6 +430,7 @@ void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
 
 }
 
+// BLF for single channel (all distances are equivalent)
 template<>
 void ndsar_blf<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
     float gammaS, float gammaR,
@@ -464,7 +465,6 @@ void ndsar_blf<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
   NDArray<float> img0(img.dimI(), img.dimJ(), img.dimK(), img.dimL(), 0.0);
   arr_forIJ(img0, i, j)
     img0(i, j) = logf(real(img(i, j)));
-
 
   NDArray<float> weights(dimaz, dimrg, 1, 1, 0.0);
 
@@ -521,7 +521,6 @@ void ndsar_blf_cpp(clx* data_view, clx* data_view2,
   int ncm = shape[3];
   NDArray<clx> img(data_view, nl, nc, nlm, ncm);
   NDArray<clx> imgout(data_view2, nl, nc, nlm, ncm);
-
   switch(nlm) {
     case 1:
       ndsar_blf<1>(img, imgout, gs, gr, TRICK, FLAT, METHOD);
