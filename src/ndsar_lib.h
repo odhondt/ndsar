@@ -161,12 +161,16 @@ void ndsar_blf(const NDArray<clx> &img, NDArray<clx> &imgout,
           new (&Ti) ConstEigMap(&img0(s,t), d, d);
           new (&Tib) ConstEigMap(&img(s,t), d, d);
           const float D = dist_cur->compute(T0, Ti);
-          float W = 0.0;
-          if(!std::isnan(D)) W = std::exp(- D/gr2) * WIm(s-i+H, t-j+H);
+          float W = 0.0,
+                Wr = 0.0,
+                Ws = 0.0;
+          if(!std::isnan(D)) Wr = std::exp(- D/gr2); 
+          Ws =  WIm(s-i+H, t-j+H);
+          W = Wr*Ws; 
 
           Ts += W*Tib;
           SumWeight += W;
-          if(W > WMax) WMax = W;
+          if(Wr > WMax) WMax = Wr;
         }
       }
     // Treating central pixel separately
@@ -297,6 +301,8 @@ void ndsar_nlm(const NDArray<clx> &img, NDArray<clx> &imgout,
                     umax = (i + PH > dimaz - 1 || s + PH > dimaz - 1)?std::min(dimaz-1-i, dimaz-1-s):PH,
                     vmax = (j + PH > dimrg - 1 || t + PH > dimrg - 1)?std::min(dimrg-1-j, dimaz-1-t):PH;
           float W = 0.0,
+                Wr = 0.0,
+                Ws = 0.0,
                 D = 0.0; // init weight and distance
           const int cnt = (umax-umin+1)*(vmax-vmin+1);
           for(int u = umin; u <= umax; ++u) // loop on patch
@@ -305,12 +311,12 @@ void ndsar_nlm(const NDArray<clx> &img, NDArray<clx> &imgout,
               new (&Tiw) ConstEigMap(&img0(s+u, t+v), d, d);
               D += dist_cur->compute(T0w, Tiw);
             }
-          if(!std::isnan(D)) W = std::exp(- D/(gr2*cnt)) * WIm(s-i+H, t-j+H);
+          if(!std::isnan(D)) Wr = std::exp(- D/(gr2*cnt));
+          Ws =  WIm(s-i+H, t-j+H);
+          W = Wr*Ws; 
           Ts += W*Ti;
           SumWeight += W;
-          if(W > WMax){
-            WMax = W;
-          }
+          if(Wr > WMax) WMax = Wr;
         }
       }
 
@@ -391,21 +397,23 @@ void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
                     vmin = (j - PH < 0 || t - PH < 0)?-std::min(j, t):-PH,
                     umax = (i + PH > dimaz - 1 || s + PH > dimaz - 1)?std::min(dimaz-1-i, dimaz-1-s):PH,
                     vmax = (j + PH > dimrg - 1 || t + PH > dimrg - 1)?std::min(dimrg-1-j, dimrg-1-t):PH;
-          float W = 0.0, D = 0.0; // init weight and distance
+          float W = 0.0, 
+                Wr = 0.0,
+                Ws = 0.0,
+                D = 0.0; // init weight and distance
           const int cnt = (umax-umin+1)*(vmax-vmin+1);
           for(int u = umin; u <= umax; ++u) // loop on patch
             for(int v = vmin; v <= vmax; ++v) {
               const float diff = img0(i+u,j+v) - img0(s+u,t+v);
               D += diff*diff;
-              if(W > WMax){
-               WMax = W;
-              }
             }
 
-          if(!std::isnan(D)) W = std::exp(- D/(gr2*cnt)) * WIm(s-i+H, t-j+H);
+          if(!std::isnan(D)) Wr = std::exp(- D/(gr2*cnt));
+          Ws =  WIm(s-i+H, t-j+H);
+          W = Wr*Ws; 
           res += W*img(s, t);
           SumWeight += W;
-          if(W > WMax) WMax = W;
+          if(Wr > WMax) WMax = Wr;
 
         }
       }
@@ -482,12 +490,15 @@ void ndsar_blf<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
       for(int t = tmin; t <= tmax; ++t) {
         if(s != i || t != j) {
           const float D = img0(i, j) - img0(s, t);
-          float W = 0.0;
-          if(!std::isnan(D)) W = std::exp(- D*D / gr2) * WIm(s-i+H, t-j+H);
-
+          float W = 0.0,
+                Wr = 0.0,
+                Ws = 0.0;
+          if(!std::isnan(D)) Wr = std::exp(- D*D / gr2); 
+          Ws = WIm(s-i+H, t-j+H);
+          W = Wr*Ws;
           res += W*img(s,t);
           SumWeight += W;
-          if(W > WMax) WMax = W;
+          if(Wr > WMax) WMax = Wr;
         }
       }
 
