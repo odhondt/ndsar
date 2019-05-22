@@ -1,4 +1,4 @@
-# NDSAR filters for multidimensional SAR speckle filtering
+# NDSAR filters for multidimensional and single-channel SAR speckle filtering
 
 ## Description
 
@@ -6,6 +6,8 @@ Python/C++ implementations of two speckle filters based on the nonlocal principl
 
 - The **NDSAR-BLF** is a bilateral filter adapted to covariance matrices obtained from SLC multi-dimensional images.
 - The **NDSAR-NLM** is a generalization of the previous method which computes similarities on square patches instead of individual pixels. It is more robust to speckle than the bilateral but requires more computational power, depending on the user selected patch size.
+
+We also provide equivalent filters for **single channel** _i.e._ intensity images.
 
 If you use one of these methods in your paper, please cite the following publication:
 
@@ -18,6 +20,11 @@ If you use only the NDSAR-BLF on PolSAR data, you may also cite:
 D'Hondt, O., Guillaso, S. and Hellwich, O. 
 **Iterative Bilateral Filtering of Polarimetric SAR Data.** 
 _IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing,  2013, 6, 1628-1639_
+
+For speed reasons, the core methods are implemented in C++, athough the API is in python.
+This way you can easily use any data importer in python (PyRAT, GDAL...) and integrate our filters in your processing chain. 
+
+**Important note:** when using the multidimensional versions of the filters with the affine invariant and log-euclidean distances, you first need to create a covariance matrix from the SLC data and apply a minimum amount of multi-looking so that the matrices are full-rank. For more information, please refer to the publication. The single-channel versions can be used directly on single-look intensities.
 
 ## Installation
 
@@ -47,5 +54,3 @@ There are four available filters:
 - `ndsarblf`: bilateral filter for covariance matrices (multi-dimensional SAR images)
 - `sarnlm`: nonlocal filter for intensity images  (single-channel SAR images)
 - `sarblf`: bilateral filter for intensiity images  (single-channel SAR images)
-
-
