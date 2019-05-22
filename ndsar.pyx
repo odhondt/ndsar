@@ -56,11 +56,11 @@ def ndsarnlm(float complex[:,:,:,::1] varr, float gs=2.8, float gr=1.4,
 
   return arr2
 
-def sarblf(float[:,::1] varr, float gs=2.8, float gr=1.4, method = 'ai',
-           bint trick=True, bint flat=False):
+def sarblf(float[:,::1] varr, float gs=2.8, float gr=1.4, bint trick=True,
+           bint flat=False):
   """
-  sarblf(float[:,::1] varr, float gs=2.8, float gr=1.4, method = 'ai',
-         bint trick=True, bint flat=False)
+  sarblf(float[:,::1] varr, float gs=2.8, float gr=1.4, bint trick=True,
+           bint flat=False)
   Version for single-channel images (intensity, amplitude). Takes float as an input.
   This is a helper function to be able to use scalar images.
   """
@@ -75,9 +75,11 @@ def sarblf(float[:,::1] varr, float gs=2.8, float gr=1.4, method = 'ai',
 
   return np.ascontiguousarray(np.real(varr2))
 
-def sarnlm(float[:,::1] varr, float gs=2.8, float gr=1.4, int ps=3, method = 'ai', bint trick=True, bint flat=False):
+def sarnlm(float[:,::1] varr, float gs=2.8, float gr=1.4, int psiz=3,
+           bint trick=True, bint flat=False):
   """
-    sarnlm(np.ndarray[np.float32_t, ndim=2] arr, float gs=2.8, float gr=1.4, int ps, method = 'ai', bint trick=True, bint flat=False):
+  def sarnlm(float[:,::1] varr, float gs=2.8, float gr=1.4, int psiz=3,
+           bint trick=True, bint flat=False)
   Version for single-channel images (intensity, amplitude). Takes float as an input.
   This is a helper function to be able to use scalar images.
   """
@@ -88,7 +90,7 @@ def sarnlm(float[:,::1] varr, float gs=2.8, float gr=1.4, int ps=3, method = 'ai
   cdef float complex[:,::1] varrclx = np.asarray(varr, dtype=np.complex64)
   cdef float complex[:,::1] varr2 = np.zeros_like(varr, dtype=np.complex64)
 
-  ndsar_nlm_cpp(&varrclx[0,0], &varr2[0,0], &c_shp[0], gs, gr, ps, trick, flat, 0)
+  ndsar_nlm_cpp(&varrclx[0,0], &varr2[0,0], &c_shp[0], gs, gr, psiz, trick, flat, 0)
 
   return np.ascontiguousarray(np.real(varr2))
 
