@@ -60,3 +60,16 @@ There are four available filters:
 - `ndsarblf`: bilateral filter for covariance matrices (multi-dimensional SAR images)
 - `sarnlm`: nonlocal filter for intensity images  (single-channel SAR images)
 - `sarblf`: bilateral filter for intensiity images  (single-channel SAR images)
+
+### Remark
+
+It is common practice in bilateral and nonlocal filtering to apply the methods in an iterative fashion. 
+To do so in python, you first need to make a copy of your input data to ensure it will not be overwritten:
+```python
+fcov = cov.copy()
+```
+and run the filter inside a for loop:
+```python
+for _ in range(4):
+  fcov = ndsarnlm(fcov)
+```

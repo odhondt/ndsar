@@ -55,6 +55,14 @@ def ndsarnlm(float complex[:,:,:,::1] varr, float gs=2.8, float gr=1.4,
         to be defined. Please ensure that the number of looks of your data is at
         least of dim. Pre-summing is preferred to boxcar multilooking to avoid
         introducing spatial correlation between the pixels.
+
+        It is common practice in bilateral and nonlocal filtering to apply the
+        methods in an iterative fashion. To do so in python, you first need to
+        make a copy of your input data:
+            fcov = cov.copy()
+        and run the filter inside a for loop:
+            for _ in range(4):
+                 fcov = ndsarnlm(fcov)
   '''
 
   cdef int[::1] c_shp = np.asarray([varr.shape[0], varr.shape[1], varr.shape[2],
