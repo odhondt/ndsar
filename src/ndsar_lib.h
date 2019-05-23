@@ -109,8 +109,6 @@ void ndsar_blf(const NDArray<clx> &img, NDArray<clx> &imgout,
 
   int dimaz = img.dimI(), dimrg = img.dimJ(), dimmat = img.dimK();
 
-  NDArray<float> weights(dimaz, dimrg, 1, 1, 0.0);
-
   // precomputing spatial Gaussian weights
   NDArray<float> WIm(2*H+1, 2*H+1, 1, 1, 1.0);
   if(!FLATW) {
@@ -217,7 +215,6 @@ void ndsar_blf(const NDArray<clx> &img, NDArray<clx> &imgout,
     if(SumWeight > 1.0e-10) Ts /= SumWeight;
     else Ts = T0b;
 
-    weights(i, j) = SumWeight;
     EigMap(&imgout(i, j), d, d) = Ts;
   }
 
@@ -245,7 +242,6 @@ void ndsar_nlm(const NDArray<clx> &img, NDArray<clx> &imgout,
   int PH = Psiz/2;
 
   int dimaz = img.dimI(), dimrg = img.dimJ(), dimmat = img.dimK();
-  NDArray<float> weights(dimaz, dimrg, 1, 1, 0.0);
 
   // precomputing spatial Gaussian weights
   NDArray<float> WIm(2*H+1, 2*H+1, 1, 1, 1.0);
@@ -364,7 +360,6 @@ void ndsar_nlm(const NDArray<clx> &img, NDArray<clx> &imgout,
     if(SumWeight > 1.0e-10) Ts /= SumWeight;
     else Ts = T0;
 
-    weights(i, j) = SumWeight;
     EigMap(&imgout(i, j), d, d) = Ts;
   }
 
@@ -384,8 +379,6 @@ void ndsar_nlm<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
   int H = ceil(std::sqrt(3.0)*gammaS);
   int PH = Psiz/2;
   int dimaz = img.dimI(), dimrg = img.dimJ();
-  NDArray<float> weights(dimaz, dimrg, 1, 1, 0.0);
-
 
   // precomputing spatial Gaussian weights
   NDArray<float> WIm(2*H+1, 2*H+1, 1, 1, 1.0);
@@ -503,8 +496,6 @@ void ndsar_blf<1>(const NDArray<clx> &img, NDArray<clx> &imgout,
   NDArray<float> img0(img.dimI(), img.dimJ(), img.dimK(), img.dimL(), 0.0);
   arr_forIJ(img0, i, j)
     img0(i, j) = logf(real(img(i, j)));
-
-  NDArray<float> weights(dimaz, dimrg, 1, 1, 0.0);
 
   clx res;
   #pragma omp parallel for firstprivate(res)
