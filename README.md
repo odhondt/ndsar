@@ -77,7 +77,7 @@ for _ in range(4):
 
 ## Testing
 
-We provide an image of a simulated 4-look image of polarimetric coherency matrices (covariances in the Pauli basis) to test the filters and get familiar with the parameters.
+We provide a simulated 4-look image of polarimetric coherency matrices (covariances in the Pauli basis) to test the filters and get familiar with the parameters.
 
 To load the image:
 ```python
