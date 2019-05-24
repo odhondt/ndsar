@@ -100,11 +100,11 @@ for _ in range(N):
     fcov = ndsarnlm(fcov, method = 'le', gs=2.8, gr=0.8 ,psiz=3)
 polcovdisp(fcov)
 ```
-The following image should be displayed:
+The filtering result should look like:
 
 ![Filtered covariance](img/filtered.png)
 
-which can be compared with the ground truth image called `Simul_PolSAR_Ideal`.
+which can be compared with the reference image called `Simul_PolSAR_Ideal.npy`.
 
 If you use this dataset in your publication, please cite:
 
