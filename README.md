@@ -89,6 +89,7 @@ cov = np.load(path_to_package+'Simul_PolSAR.npy')
 polcovshow(cov)
 ```
 The following image should be displayed:
+
 ![Noisy covariance](img/noisy.png)
 
 To apply the NDSAR-NLM filter:
@@ -100,7 +101,9 @@ for _ in range(N):
 polcovdisp(fcov)
 ```
 The following image should be displayed:
+
 ![Filtered covariance](img/filtered.png)
+
 which can be compared with the ground truth image called `Simul_PolSAR_Ideal`.
 
 If you use this dataset in your publication, please cite:
