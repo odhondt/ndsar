@@ -88,16 +88,25 @@ from ndsar.display import polcovshow
 cov = np.load(path_to_package+'Simul_PolSAR.npy')
 polcovshow(cov)
 ```
-
+The following image should be displayed:
 ![Noisy covariance](img/noisy.png)
 
-To apply the filter:
+To apply the NDSAR-NLM filter:
 ```python
-ccf = cc.copy()
+fcov = cov.copy()
 N = 2
 for _ in range(N):
-    ccf = ndsarnlm(ccf, method = 'le', gs=2.8, gr=0.8 ,psiz=3)
-polcovdisp(ccf)
+    fcov = ndsarnlm(fcov, method = 'le', gs=2.8, gr=0.8 ,psiz=3)
+polcovdisp(fcov)
 ```
-
+The following image should be displayed:
 ![Filtered covariance](img/filtered.png)
+which can be compared with the ground truth image called `Simul_PolSAR_Ideal`.
+
+If you use this dataset in your publication, please cite:
+
+O. D'Hondt, S. Guillaso and O. Hellwich. 
+**Iterative Bilateral Filtering of Polarimetric SAR Data.** 
+_IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing,  2013, 6, 1628-1639_
+
+
