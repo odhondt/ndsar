@@ -5,6 +5,7 @@ Contents:
 - [Description](#description)
 - [Install](#install)
 - [Usage](#usage)
+- [Testing](#testing)
 
 ## Description
 
@@ -72,4 +73,27 @@ and run the filter inside a for loop:
 ```python
 for _ in range(4):
   fcov = ndsarnlm(fcov)
+```
+
+## Testing
+
+We provide an image of a simulated 4-look image polarimetric coherency matrices (covariances in the Pauli basis) to test the filters and get familiar with the parameters.
+
+To load the image:
+```python
+import numpy as np
+from ndsar import ndsarnlm
+from ndsar.display import polcovshow
+
+cov = np.load(path_to_package+'Simul_PolSAR.npy')
+polcovshow(cov)
+```
+
+To apply the filter:
+```python
+fcov = cov.copy()
+N = 4
+for _ in range(N):
+    fcov = ndsarnlm(fcov, method = 'le', gs=2.8, gr=1.1 ,psiz=3)
+polcovshow(fcov)
 ```
