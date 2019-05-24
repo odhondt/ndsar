@@ -77,7 +77,7 @@ for _ in range(4):
 
 ## Testing
 
-We provide an image of a simulated 4-look image polarimetric coherency matrices (covariances in the Pauli basis) to test the filters and get familiar with the parameters.
+We provide an image of a simulated 4-look image of polarimetric coherency matrices (covariances in the Pauli basis) to test the filters and get familiar with the parameters.
 
 To load the image:
 ```python
@@ -104,7 +104,7 @@ The filtering result should look like:
 
 ![Filtered covariance](img/filtered.png)
 
-which can be compared with the reference image called `Simul_PolSAR_Ideal.npy`.
+which can be compared to the reference image called `Simul_PolSAR_Ideal.npy`.
 
 If you use this dataset in your publication, please cite:
 
