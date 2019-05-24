@@ -89,11 +89,15 @@ cov = np.load(path_to_package+'Simul_PolSAR.npy')
 polcovshow(cov)
 ```
 
+![Noisy covariance](img/noisy.png)
+
 To apply the filter:
 ```python
-fcov = cov.copy()
-N = 4
+ccf = cc.copy()
+N = 2
 for _ in range(N):
-    fcov = ndsarnlm(fcov, method = 'le', gs=2.8, gr=1.1 ,psiz=3)
-polcovshow(fcov)
+    ccf = ndsarnlm(ccf, method = 'le', gs=2.8, gr=0.8 ,psiz=3)
+polcovdisp(ccf)
 ```
+
+![Filtered covariance](img/filtered.png)
