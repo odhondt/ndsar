@@ -82,7 +82,6 @@ We provide an image of a simulated 4-look image of polarimetric coherency matric
 To load the image:
 ```python
 import numpy as np
-from ndsar import ndsarnlm
 from ndsar.display import polcovshow
 
 cov = np.load(path_to_package+'Simul_PolSAR.npy')
@@ -94,6 +93,8 @@ The following image should be displayed:
 
 To apply the NDSAR-NLM filter:
 ```python
+from ndsar import ndsarnlm
+
 fcov = cov.copy()
 N = 2
 for _ in range(N):
@@ -104,12 +105,10 @@ The filtering result should look like:
 
 ![Filtered covariance](img/filtered.png)
 
-which can be compared to the reference image called `Simul_PolSAR_Ideal.npy`.
+which can be compared to the reference image `Simul_PolSAR_Ideal.npy`.
 
 If you use this dataset in your publication, please cite:
 
 O. D'Hondt, S. Guillaso and O. Hellwich. 
 **Iterative Bilateral Filtering of Polarimetric SAR Data.** 
 _IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing,  2013, 6, 1628-1639_
-
-
