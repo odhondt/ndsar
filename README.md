@@ -99,7 +99,7 @@ fcov = cov.copy()
 N = 2
 for _ in range(N):
     fcov = ndsarnlm(fcov, method = 'le', gs=2.8, gr=0.8 ,psiz=3)
-polcovdisp(fcov)
+polcovshow(fcov)
 ```
 The filtering result should look like:
 
